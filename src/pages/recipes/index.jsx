@@ -1,26 +1,62 @@
-import { Container, Grid, TextField, Card, CardMedia, Typography, CardContent} from "@mui/material";
+import {
+  Container,Grid,TextField,Card,CardMedia,Typography, CardActionArea, CardContent,} from "@mui/material";
+  import {useEffect, useState} from "react";
 
 export default function Recipes() {
-    return (
-        <Container sx={{my: '2rem'}} maxWidth="sm">
-             <TextField 
-                 fullWidth id="outlined-basic"
-                label="Enter a keyword to search recipes and hit Enter"
-                variant="outlined" />
+    const [recipes, setRecipes]= useState([]);
 
-                <Grid sx={{ mt: '1rem'}} container spacing={3}>
-                    <Grid item xs={4}>
-                        <Card> 
-                            <CardMedia 
-                            sx={{ height: 140 }}
-                            image= "https://media.istockphoto.com/id/1130112004/photo/vegan-detox-buddha-bowl-with-turmeric-roasted-chickpeas-greens-avocado-persimmon-blood-orange.jpg?s=1024x1024&w=is&k=20&c=vxwp1UeZvlinBZGsIT2ow-4zqoul7x-B9m-dVLEpu5E="/>
+    const getRecipes = () => {
+        // preparenURL
+        const url = new URL("https://api.spoonacular.com/recipes/complexSearch");
+        url.searchParams.append('apiKey', 'ffd22e694d184a44b5145ef8da9738dc');
+        //url.searchParams.append('number', 2); for 2 the number of cards
+        // fetch recipes from API
+        fetch(url)
+            .then(response => response.json()) 
+            .then(data => {
+             // update recipes state
+             setRecipes(data.results);
+           // console.log(data);
+           
+            })
+            .catch(error => {
+            console.log(error);
+            })
+       
+    }
+    useEffect(getRecipes,[]);
+
+  return (
+    <Container sx={{ my: "2rem" }}>
+        <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Enter a keyword to search recipes and hit Enter"
+            variant="outlined"
+      />
+
+      <Grid sx={{ mt: "1rem" }} container spacing={3}>
+        {recipes.map(recipe => (<Grid key={recipe.id} item xs={4}>
+          <Card sx={{ maxWidth: 345 , height:'100%'}}>
+            <CardActionArea sx={{height: '100%'}}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={recipe.image}
+                alt={recipe.titled}
+              />
+              <CardContent sx={{height:'100%'}}>
+                <Typography gutterBottom 
+                variant="h5" component="div">
+                  {recipe.title}
+                </Typography>
+               
                 
-                        </Card>
-                        <CardContent>
-                            <Typography variant="h5"> Recipe Name</Typography>
-                        </CardContent>
-                    </Grid>
-                </Grid>
-        </Container>
-    );
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>))}
+      </Grid>
+    </Container>
+  );
 }
