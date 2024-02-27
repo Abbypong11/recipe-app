@@ -1,15 +1,19 @@
 import {
   Container,Grid,TextField,Card,CardMedia,Typography, CardActionArea, CardContent,} from "@mui/material";
   import {useEffect, useState} from "react";
+  import emptyIcon from "../../assets/images/undraw_empty_re_opql.svg";
 
 export default function Recipes() {
-    const [recipes, setRecipes]= useState([]);
+    const [recipes, setRecipes] = useState([]);
+    const [keyword, setKeyword] = useState("");
+
 
     const getRecipes = () => {
         // preparenURL
         const url = new URL("https://api.spoonacular.com/recipes/complexSearch");
-        url.searchParams.append('apiKey', 'ffd22e694d184a44b5145ef8da9738dc');
-        //url.searchParams.append('number', 2); for 2 the number of cards
+        url.searchParams.append('apiKey', process.env.REACT_APP_SPOONACULAR_API_KEY);
+        url.searchParams.append('query', keyword);
+        //url.searchParams.append('number', 2); for the number of cards
         // fetch recipes from API
         fetch(url)
             .then(response => response.json()) 
@@ -24,7 +28,7 @@ export default function Recipes() {
             })
        
     }
-    useEffect(getRecipes,[]);
+    useEffect(getRecipes,[keyword]);
 
   return (
     <Container sx={{ my: "2rem" }}>
@@ -33,10 +37,11 @@ export default function Recipes() {
             id="outlined-basic"
             label="Enter a keyword to search recipes and hit Enter"
             variant="outlined"
+            onKeyDown={event => event.key ==='Enter' && setKeyword(event.target.value)}
       />
 
       <Grid sx={{ mt: "1rem" }} container spacing={3}>
-        {recipes.map(recipe => (<Grid key={recipe.id} item xs={4}>
+        { recipes.length > 0 ? recipes.map(recipe => (<Grid key={recipe.id} item xs={4} >
           <Card sx={{ maxWidth: 345 , height:'100%'}}>
             <CardActionArea sx={{height: '100%'}}>
               <CardMedia
@@ -47,7 +52,7 @@ export default function Recipes() {
               />
               <CardContent sx={{height:'100%'}}>
                 <Typography gutterBottom 
-                variant="h5" component="div">
+                  variant="h5" component="div">
                   {recipe.title}
                 </Typography>
                
@@ -55,7 +60,7 @@ export default function Recipes() {
               </CardContent>
             </CardActionArea>
           </Card>
-        </Grid>))}
+        </Grid>)) : <img src={emptyIcon} width='50%'/>}
       </Grid>
     </Container>
   );
